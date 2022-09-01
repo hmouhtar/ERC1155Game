@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { FC } from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Dashboard from "./views/Dashboard/Dashboard";
+import "@rainbow-me/rainbowkit/styles.css";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
+import { useAccount } from "wagmi";
+import GuardedRoute from "./components/GuardedRoute/GuardedRoute";
+import Home from "./views/Home/Home";
 
-function App() {
+interface AppProps {}
+
+const App: FC<AppProps> = () => {
+  const { status: walletStatus } = useAccount();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Navbar></Navbar>
+      <Routes>
+        <Route
+          path="/dashboard"
+          element={
+            <GuardedRoute
+              redirectPath="/"
+              isAllowed={walletStatus == "connected"}
+            >
+              <Dashboard />
+            </GuardedRoute>
+          }
+        />
+        <Route path="/" element={<Home />}></Route>
+      </Routes>
     </div>
   );
-}
+};
 
 export default App;
