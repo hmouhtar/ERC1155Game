@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// solhint-disable-next-line compiler-version
+pragma solidity 0.8.16;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -9,10 +10,10 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Items.sol";
 
-contract SampleERC1155 is ERC1155, Ownable, Pausable, ERC1155Supply {
+contract SampleERC1155 is ERC1155, Ownable, Pausable, ERC1155Supply, UsesItemsConstants {
     using Strings for uint256;
     string private _baseURI;
-    mapping(uint256 => bool) publicMintableTokens;
+    mapping(uint256 => bool) public publicMintableTokens;
 
     constructor(string memory baseURI) ERC1155("") {
         _baseURI = baseURI;
@@ -30,7 +31,7 @@ contract SampleERC1155 is ERC1155, Ownable, Pausable, ERC1155Supply {
             msg.sender == owner() ||
                 account == _msgSender() ||
                 isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not token owner nor approved"
+            "Caller is not token owner nor approved"
         );
 
         _burn(account, id, value);
@@ -43,30 +44,26 @@ contract SampleERC1155 is ERC1155, Ownable, Pausable, ERC1155Supply {
         override
         returns (string memory)
     {
-        require(
-            exists(tokenId),
-            "The provided tokenId hasn't been minted yet."
-        );
+        require(exists(tokenId), "tokenId hasn't been minted yet");
         return
             bytes(_baseURI).length > 0
                 ? string(abi.encodePacked(_baseURI, tokenId.toString()))
                 : "";
     }
 
-    function pause() public onlyOwner {
+    function pause() external onlyOwner {
         _pause();
     }
 
-    function unpause() public onlyOwner {
+    function unpause() external onlyOwner {
         _unpause();
     }
 
-    function publicMint(uint256 tokenId) public {
+    function publicMint(uint256 tokenId) external {
         require(
-            publicMintableTokens[tokenId] == true,
-            "The provided token ID is not available for public mint."
+            publicMintableTokens[tokenId],
+            "token ID is not available for public mint."
         );
-        console.log("token ID %s", tokenId);
         _mint(msg.sender, tokenId, 1, "");
     }
 
@@ -75,7 +72,7 @@ contract SampleERC1155 is ERC1155, Ownable, Pausable, ERC1155Supply {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public onlyOwner {
+    ) external onlyOwner {
         _mint(account, id, amount, data);
     }
 

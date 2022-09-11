@@ -1,0 +1,20 @@
+{
+  "extends": "solhint:recommended",
+  "plugins": [],
+  "rules": {
+    "func-visibility": [
+      "warn",
+      {
+        "ignoreConstructors": true
+      }
+    ],
+    "avoid-suicide": "error",
+    "avoid-sha3": "warn",
+    "reason-string": [
+      "warn",
+      {
+        "maxLength": 64
+      }
+    ]
+  }
+}
